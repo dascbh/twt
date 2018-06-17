@@ -30,15 +30,18 @@ Seguem abaixo os links para download e passo-a-passo sobre como instala-lo consi
 
 
 **MacOS**
+
 Instalação: https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
 Download: https://store.docker.com/editions/community/docker-ce-desktop-mac
 
 
 **Linux**
-Instalação: https://docs.docker.com/install/linux/docker-ce/ubuntu/ (veja outras opções de OS no menu lateral)
 
+Instalação: https://docs.docker.com/install/linux/docker-ce/ubuntu/
+(veja outras distribuições no menu lateral)
 
 **Windows**
+
 Instalação: https://docs.docker.com/docker-for-windows/install/
 Download: https://store.docker.com/editions/community/docker-ce-desktop-mac
 
