@@ -179,20 +179,26 @@ Para o exercício precisaremos instalar um novo plugin chamado ``SonarQube Scann
 
 ![](images/024.png)
 
-Uma vez instalado e reiniciado, vamos as configurações, para isso precisaremos acessar o menu ``Gerenciar Jenkins -> Global Configuration Tools`:
+Uma vez instalado e reiniciado, vamos as configurações, para isso precisaremos acessar o menu ``Gerenciar Jenkins -> Global Configuration Tools``:
+
+
 
 Primeiro, configuramos o SonarQube Scanner:
 ![](images/016.png)
 
+
+
 Em seguida o Docker:
 ![](images/017.png)
+
 
 
 Agora vamos definir o SonarQube server em ``Gerenciar Jenkins -> Configure System``:
 ![](images/021.png)
 
 
-Última parte, mas não menos importante que é a configuração de credenciais. Este step é fundamental para que possamos enviar as imagens docker geradas pelas pipelines para o repositório Docker Hub. Basta acessar no menu Credentials -> Global -> Add Credential:
+
+Última parte, mas não menos importante que é a configuração de credenciais. Este step é fundamental para que possamos enviar as imagens docker geradas pelas pipelines para o repositório Docker Hub. Basta acessar no menu ``Credentials -> Global -> Add Credential``:
 
 ![](images/019.png)
 ![](images/020.png)
@@ -207,32 +213,43 @@ Na página principal do Jenkins, vamos criar um Novo job e realizar a parametria
 
 ![](images/025.png)
 
+
+
 Defina um nome (geralmente seguindo o padrão do projeto) e selecione o tipo ``Pipeline``
 
 ![](images/027.png)
+
+
 
 Na seção General, marque a opção ``GitHub Project`` e coloque o endereço do projeto no GitHub. Na seção Build Triggers marque também a opção ``GitHub hook trigger for GITScm polling``, desta forma sua pipepline já fica pronta para execucar automaticamente caso você tenha feito a configuração de webhook no repositório.
 
 ![](images/028.png)
 
+
+
 Agora na seção ``Advanced Project Options``, no campo Definition selecione ``Pipeline script form SCM``, com isso o Jenkins assumira que seu script de pipeline estará dentro do projeto. Desta forma, será necessário informar qual é o ``SCM`` (no caso Git), o ``Repository URL`` passando novamente o endereço do projeto, e por fim o ``Script path`` que por padrão já é Jenkinsfile.
 
 ![](images/029.png)
 
+
+
 Pronto! Sua nova pipeline está pronta para ser executada. 
-
-![](images/030.png)
-
 
 Uma vez iniciada você poderá acompanhar a evolução pelo link do job ``http://localhost:8080/job/twt-app-hapi-nodejs/``. 
 
 ![](images/030.png)
+
+
 
 Assim que todos os estágios forem conclúidos com sucesso você poderá validar acessando via browser o container que foi criado com nossa aplicação teste pelo do endereço: 
 
 ```
 http://localhost:3000/
 ```
+
+![](images/023.png)
+
+
 
 Não deixe de conferir também o funcionamento do container de aplicação que foi criado.
 
@@ -243,9 +260,5 @@ CONTAINER ID        IMAGE                COMMAND                  CREATED       
 d9ada886d2d7        dascbh/twt-app:latest   "node app.js"            3 minutes ago       Up 4 minutes              0.0.0.0:3000->3000/tcp                             twt-app
 ```
 
-![](images/023.png)
 
-
-
-
-
+# Obrigado
