@@ -117,6 +117,8 @@ cdc2ff18731b        docker_jenkins     "/bin/tini -- /usr..."   About a minute a
 ```
 
 
+
+
 ## Configuração do GitHub (Opcional)
 
 Para este exercício não vamos configurar webhooks uma vez que o Jenkins esta rodando local e isso criaria uma dependências com a suas configurações de rede/internet, no entanto vale ressaltar que em um contexto de produção isso seria bastante indicado e coloca ainda mais automação no contexto - a partir de um push no repositório ele já executa a pipeline, top hein ? :)
@@ -171,31 +173,79 @@ Depois de clicar nos botões **Save and Finish** e **Start using Jenkins**, voc�
 
 ## Configuração do Jenkins
 
+Você pode optar por atualizar os Plugins do Jenkins e inclusive sua versão antes de dar início nas outras configurações, é uma boa prática e pode evitar problemas. 
 
-The purpose is to communicate between the ``Docker Daemon`` and the ``Docker Client``(_we will install it on Jenkins_) over the socket. Like the docker client, we also need ``Maven`` to compile the application. For the installation of these tools, we need to perform the ``Maven`` and ``Docker Client`` configurations under _Manage Jenkins -> Global Tool Configuration_ menu.
+Para o exercício precisaremos instalar um novo plugin chamado ``SonarQube Scanner for Jenkins``, para isso selecione no menu lateral a opção ``Gerenciar Jenkins -> Gerenciar Plugins -> Disponíveis`` e pesquisar:
 
-![](images/008.png)
+![](images/024.png)
 
-We have added the ``Maven and Docker installers`` and have checked the ``Install automatically`` checkbox. These tools are installed by Jenkins when our script([Jenkins file](https://github.com/hakdogan/jenkins-pipeline/blob/master/Jenkinsfile)) first runs. We give ``myMaven`` and ``myDocker`` names to the tools. We will access these tools with this names in the script file.
+Uma vez instalado e reiniciado, vamos as configurações, para isso precisaremos acessar o menu ``Gerenciar Jenkins -> Global Configuration Tools`:
 
-Since we will perform some operations such as ``checkout codebase`` and ``pushing an image to Docker Hub``, we need to define the ``Docker Hub Credentials``. Keep in mind that if we are using a **private repo**, we must define ``Github credentials``. These definitions are performed under _Jenkins Home Page -> Credentials -> Global credentials (unrestricted) -> Add Credentials_ menu.
+Primeiro, configuramos o SonarQube Scanner:
+![](images/016.png)
 
-![](images/009.png)
+Em seguida o Docker:
+![](images/017.png)
 
-We use the value we entered in the ``ID`` field to Docker Login in the script file. Now, we define pipeline under _Jenkins Home Page -> New Item_ menu.
 
-![](images/010.png)
+Agora vamos definir o SonarQube server em ``Gerenciar Jenkins -> Configure System``:
+![](images/021.png)
 
-In this step, we select ``GitHub hook trigger for GITScm pooling`` options for automatic run of the pipeline by ``Github hook`` call.
 
-![](images/011.png)
+Última parte, mas não menos importante que é a configuração de credenciais. Este step é fundamental para que possamos enviar as imagens docker geradas pelas pipelines para o repositório Docker Hub. Basta acessar no menu Credentials -> Global -> Add Credential:
 
-Also in the Pipeline section, we select the ``Pipeline script from SCM`` as Definition, define the GitHub repository and the branch name, and specify the script location (_[Jenkins file](https://github.com/hakdogan/jenkins-pipeline/blob/master/Jenkinsfile)_).
+![](images/019.png)
+![](images/020.png)
 
-![](images/012.png)
 
-After that, when a push is done to the remote repository or when you manually trigger the pipeline by ``Build Now`` option, the steps described in Jenkins file will be executed.
+Pronto! Todas as configurações necesárias para executar nossa pipeline já foram feitas, agora vamos a parte final que é a criação e execução.
 
-![](images/013.png)
 
-## Review important points of the Jenkins file
+
+## Setup da Pipeline
+Na página principal do Jenkins, vamos criar um Novo job e realizar a parametriação. O primeiro passo é criar o job, vamos lá ? Clique em Novo job:
+
+![](images/025.png)
+
+Defina um nome (geralmente seguindo o padrão do projeto) e selecione o tipo ``Pipeline``
+
+![](images/027.png)
+
+Na seção General, marque a opção ``GitHub Project`` e coloque o endereço do projeto no GitHub. Na seção Build Triggers marque também a opção ``GitHub hook trigger for GITScm polling``, desta forma sua pipepline já fica pronta para execucar automaticamente caso você tenha feito a configuração de webhook no repositório.
+
+![](images/028.png)
+
+Agora na seção ``Advanced Project Options``, no campo Definition selecione ``Pipeline script form SCM``, com isso o Jenkins assumira que seu script de pipeline estará dentro do projeto. Desta forma, será necessário informar qual é o ``SCM`` (no caso Git), o ``Repository URL`` passando novamente o endereço do projeto, e por fim o ``Script path`` que por padrão já é Jenkinsfile.
+
+![](images/029.png)
+
+Pronto! Sua nova pipeline está pronta para ser executada. 
+
+![](images/030.png)
+
+
+Uma vez iniciada você poderá acompanhar a evolução pelo link do job ``http://localhost:8080/job/twt-app-hapi-nodejs/``. 
+
+![](images/030.png)
+
+Assim que todos os estágios forem conclúidos com sucesso você poderá validar acessando via browser o container que foi criado com nossa aplicação teste pelo do endereço: 
+
+```
+http://localhost:3000/
+```
+
+Não deixe de conferir também o funcionamento do container de aplicação que foi criado.
+
+```
+docker ps
+
+CONTAINER ID        IMAGE                COMMAND                  CREATED              STATUS              PORTS                                              NAMES
+d9ada886d2d7        dascbh/twt-app:latest   "node app.js"            3 minutes ago       Up 4 minutes              0.0.0.0:3000->3000/tcp                             twt-app
+```
+
+![](images/023.png)
+
+
+
+
+
