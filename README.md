@@ -1,20 +1,80 @@
-# Thoughtworks Test (twt) - Um exercício do processo seletivo sobre Pipeline as code para CI/CD
+# Thoughtworks Test (twt) - Um exercício do processo seletivo sobre Pipeline as Code
 
-Este repositório é sobre um exercício que implementa uma pipeline simples de ci/cd automatizada que realize build, testes unitários, validação de cobertura e deploy para containers.
+Este repositório é sobre a implementação de uma pipeline simples para ci/cd que realize build, testes unitários, verificação de qualidade de código e deploy preferencialmente em containers.
+
+Para aplicação, optei por utilizar uma biblioteca open source feita em NodeJS chamada ``hapi``, a qual funciona como uma framework de construção simplificada de aplicações e serviços. A nossa pipeline utiliza os sources do ``hapi`` como base para execução dos testes unitários e a análise de qualidade, ao final o artefato construído é a imagem docker de um servidor web já configurado e com algumas rotas de validação.
 
 O processo se resume nos seguintes estágios:
+
+* Inicialização (variávies e tools)
 * Code checkout (hapi)
-* Build do ambiente (npm)
+* Build de dependências (npm)
 * Execução de testes unitários
-* Validação de cobertura e análise de código (sonar)
-* Criação de uma imagem Docker
-* Push da imagem para repositório (Docker Hub)
-* Pull e execução do container com aplicação
+* Análise de qualidade de código (sonarqube)
+* Criação de artefato (Imagem Docker)
+* Push do artefato (Imagem docker) para repositório (Docker Hub)
+* Pull e execução do container com aplicação (http://localhost:3000)
 
 
-## Primeiro passo, estabelecendo os serviços
+![](images/arch.png)
 
-Since one of the goals is to obtain the ``sonarqube`` report of our project, we should be able to access sonarqube from the jenkins service. ``Docker compose`` is a best choice to run services working together. We configure our application services in a yaml file as below.
+---------------------------
+
+## Primeiros passo, estabelecendo os serviços
+
+Agora que já estamos alinhados quanto ao projeto e os estágios da pipeline, vamos as configurações!
+
+
+1) Ambiente Docker
+
+Para este exerícicio assim como na vida, podemos escolher escolher entre configurar todo ambiente e suas penedências ou utilizar containers docker já totalmente configurados e disponíveis no docker hub. Por razões obvias vamos seguir utilizando containers e para isso você precisa apenas ter o servico do Docker instalado na sua máquina ou servidor. S
+
+Seguem abaixo os links para download e passo-a-passo sobre como instala-lo considerando o seu sistema operacional de preferência:
+
+MacOS
+-----
+
+Instalação
+https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
+
+Download
+https://store.docker.com/editions/community/docker-ce-desktop-mac
+
+
+Linux
+-----
+
+Instalação
+https://docs.docker.com/install/linux/docker-ce/ubuntu/ (veja outras opções de OS no menu lateral)
+
+
+Windows
+--------
+
+Instalação
+https://docs.docker.com/docker-for-windows/install/
+
+Download
+https://store.docker.com/editions/community/docker-ce-desktop-mac
+
+
+
+2) Construção dos Servidores - Jenkins e SonarQube
+
+Pronto, agora que você já tem o serviço do Docker instalado, partiremos para a consrução dos servidores principais do nosso exercício a partir de containers. Utilizaremos o Jenkins como orquestrador, logo será também nele aonde vamos configurar nossas pipelines e integrar com outros serviços. Outro componente importante da nossa estrutura é o SonarQube, ferramenta que realize o code analysis e verifica a qualidade do código que está sendo entregue para os ambientes.
+
+
+Então vamos começar! Você pode optar por instalar ambos containers "na mão", ou seja, puxando as imagens diretamente do Docker Hub e executando, ou talvez até mesmo criar um arquivo docker-compose (yaml) por conta própria, mas para este exemplo o ideal é seguir os arquivos já disponibilizados aqui no projeto. 
+
+Este são os nossos construtores, para executalos basta acessar a pasta ```docker``` em nosso projeto e rodar o comando ```sh up.sh```
+
+Uma outra opção é executar o comando abaixo a partir do mesmo diretório e teremos a mesma mágica acontecendo.
+```
+docker-compose -f docker-compose.yml up --build -d
+```
+
+Escolha o método de sua preferência e vamos adiante! Lembrando que é necessário executar apenas uma das opções (sh up.sh ou docker-compose).
+
 
 ``docker-compose.yml``
 ```yml
@@ -37,13 +97,13 @@ services:
       - 50000:50000
     container_name: jenkins
     volumes:
-      - /tmp/jenkins:/var/jenkins_home #Remember that, the tmp directory is designed to be wiped on system reboot.
+      - /tmp/jenkins:/var/jenkins_home
       - /var/run/docker.sock:/var/run/docker.sock
     depends_on:
       - sonarqube
 ```
 
-Paths of docker files of the containers are specified at context attribute in the docker-compose file. Content of these files as follows.
+Paths e conteúdo dos arquivos Dockerfile responsáveis pela construção dos containers no momento da execução do docker-compose.
 
 ``sonarqube/Dockerfile``
 ```
@@ -52,51 +112,46 @@ FROM sonarqube:6.7-alpine
 
 ``jenkins/Dockerfile``
 ```
-FROM jenkins:2.60.3
+FROM jenkins:2.60.3-alpine
 ```
 
-If we run the following command in the same directory as the ``docker-compose.yml`` file, the Sonarqube and Jenkins containers will up and run.
 
-```
-docker-compose -f docker-compose.yml up --build
-```
+Uma vez executado, devemos conferir o resultado e checar se nossos containers estão rodando corretamente:
+
 
 ```
 docker ps
 
 CONTAINER ID        IMAGE                COMMAND                  CREATED              STATUS              PORTS                                              NAMES
-87105432d655        pipeline_jenkins     "/bin/tini -- /usr..."   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, 0.0.0.0:50000->50000/tcp   jenkins
-f5bed5ba3266        pipeline_sonarqube   "./bin/run.sh"           About a minute ago   Up About a minute   0.0.0.0:9000->9000/tcp, 0.0.0.0:9092->9092/tcp     sonarqube
+cdc2ff18731b        docker_jenkins     "/bin/tini -- /usr..."   About a minute ago   Up About a minute   0.0.0.0:8080->8080/tcp, 0.0.0.0:50000->50000/tcp   jenkins
+0da5facb15fe        docker_sonarqube   "./bin/run.sh"           About a minute ago   Up About a minute   0.0.0.0:9000->9000/tcp, 0.0.0.0:9092->9092/tcp     sonarqube
 ```
 
-## GitHub configuration
-We’ll define a service on Github to call the ``Jenkins Github webhook`` because we want to trigger the pipeline. To do this go to _Settings -> Integrations & services._ The ``Jenkins Github plugin`` should be shown on the list of available services as below.
+
+3) Configuração dos GitHub
+Para este exercício não vamos configurar webhooks uma vez que o Jenkins esta rodando local e isso criaria uma dependências com a suas configurações de rede/internet, no entanto vale ressaltar que em um contexto de produção isso seria bastante indicado e coloca ainda mais automação no contexto - a partir de um push no repositório ele já executa a pipeline, top hein ? :)
+
+Para configurar os hooks basta abrir o repositório no Github e ir em Settings -> Integrations & Services > Add Service > Jenkins (Github plugin) e configurar, passando o endereço no formato http://seu-servidor-jenkins/github-webhook/ .
 
 ![](images/001.png)
 
-After this, we should add a new service by typing the URL of the dockerized Jenkins container along with the ``/github-webhook/`` path.
 
 ![](images/002.png)
 
-The next step is that create an ``SSH key`` for a Jenkins user and define it as ``Deploy keys`` on our GitHub repository.
+Talvez seja necessário também criar uma chave SSH e adicionar no ``Deploy keys`` no seu repositório GitHub como indicado abaixo.
 
 ![](images/003.png)
 
-If everything goes well, the following connection request should return with a success.
-```
-ssh git@github.com
-PTY allocation request failed on channel 0
-Hi <your github username>/<repository name>! You've successfully authenticated, but GitHub does not provide shell access.
-Connection to github.com closed.
-```
 
-## Jenkins configuration
 
-We have configured Jenkins in the docker compose file to run on port 8080 therefore if we visit http://localhost:8080 we will be greeted with a screen like this.
+4) Configuração do Jenkins
+
+Esta sim é uma parte fundamental do exercício, uma vez que temos o container Jenkins rodando, ele pode ser acessado pelo endereço http://localhost:8080 de acordo com as configurações descritas no docker compose. 
 
 ![](images/004.png)
 
-We need the admin password to proceed to installation. It’s stored in the ``/var/jenkins_home/secrets/initialAdminPassword`` directory and also It’s written as output on the console when Jenkins starts.
+Será necessário a senha de administrador para seguir na instalação. Ela fica armazenada no arquivo ``/var/jenkins_home/secrets/initialAdminPassword``, mas também é exibida como output do processo de inicialização do Jenkins.
+
 
 ```
 jenkins      | *************************************************************
@@ -111,14 +166,13 @@ jenkins      |
 jenkins      | *************************************************************
 ```
 
-To access the password from the container.
+Para acessar a chave basta executar o comando abaixo:
 
 ```
-docker exec -it jenkins sh
-/ $ cat /var/jenkins_home/secrets/initialAdminPassword
+docker logs jekins
 ```
 
-After entering the password, we will download recommended plugins and define an ``admin user``.
+Depois de fornecer o password será necessário instalar os plugins recomendados e definir um ``admin user``.
 
 ![](images/005.png)
 
@@ -126,10 +180,12 @@ After entering the password, we will download recommended plugins and define an 
 
 ![](images/007.png)
 
-After clicking **Save and Finish** and **Start using Jenkins** buttons, we should be seeing the Jenkins homepage. One of the seven goals listed above is that we must have the ability to build an image in the Jenkins being dockerized. Take a look at the volume definitions of the Jenkins service in the compose file.
-```
-- /var/run/docker.sock:/var/run/docker.sock
-```
+Depois de clicar nos botões **Save and Finish** e **Start using Jenkins**, você estará acessando o painel principal do Jenkins. Agora vamos começar o trabalho de configuração dos plugins e testes de integração.
+
+
+
+
+
 
 The purpose is to communicate between the ``Docker Daemon`` and the ``Docker Client``(_we will install it on Jenkins_) over the socket. Like the docker client, we also need ``Maven`` to compile the application. For the installation of these tools, we need to perform the ``Maven`` and ``Docker Client`` configurations under _Manage Jenkins -> Global Tool Configuration_ menu.
 
