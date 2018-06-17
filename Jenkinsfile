@@ -63,6 +63,13 @@ pipeline {
                 imageBuild(CONTAINER_NAME, CONTAINER_TAG)
             }
         }
+        stage('Push to Docker Registry'){
+            steps {
+                withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
+                    pushToRegistry(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
+                }
+            }
+        }
         stage('Run App'){
             steps {
                 runApp(CONTAINER_NAME, CONTAINER_TAG, DOCKER_HUB_USER, HTTP_PORT)
@@ -86,7 +93,7 @@ def imageBuild(containerName, tag){
 def pushToRegistry(containerName, tag, dockerUser, dockerPassword){
     sh "docker login -u $dockerUser -p $dockerPassword"
     sh "docker tag $containerName:$tag $dockerUser/$containerName:$tag"
-    sh "docker push $dockerUser/$containerName:$tag"
+//    sh "docker push $dockerUser/$containerName:$tag"
     echo "Image push complete"
 }
 
