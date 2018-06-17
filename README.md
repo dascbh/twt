@@ -15,21 +15,19 @@ O processo se resume nos seguintes estágios:
 * Push do artefato (Imagem docker) para repositório (Docker Hub)
 * Pull e execução do container com aplicação (http://localhost:3000)
 
+![](images/arch.jpeg)
 
-![](images/arch.png)
-
----------------------------
+--------------------------- 
 
 ## Primeiros passo, estabelecendo os serviços
 
 Agora que já estamos alinhados quanto ao projeto e os estágios da pipeline, vamos as configurações!
 
-
-###### Ambiente Docker
-
 Para este exerícicio assim como na vida, podemos escolher escolher entre configurar todo ambiente e suas penedências ou utilizar containers docker já totalmente configurados e disponíveis no docker hub. Por razões obvias vamos seguir utilizando containers e para isso você precisa apenas ter o servico do Docker instalado na sua máquina ou servidor. S
 
 Seguem abaixo os links para download e passo-a-passo sobre como instala-lo considerando o seu sistema operacional de preferência:
+
+
 
 MacOS
 -----
@@ -59,7 +57,8 @@ https://store.docker.com/editions/community/docker-ce-desktop-mac
 
 
 
-###### Construção dos Servidores - Jenkins e SonarQube
+
+## Construção dos Servidores - Jenkins e SonarQube
 
 Pronto, agora que você já tem o serviço do Docker instalado, partiremos para a consrução dos servidores principais do nosso exercício a partir de containers. Utilizaremos o Jenkins como orquestrador, logo será também nele aonde vamos configurar nossas pipelines e integrar com outros serviços. Outro componente importante da nossa estrutura é o SonarQube, ferramenta que realize o code analysis e verifica a qualidade do código que está sendo entregue para os ambientes.
 
@@ -128,7 +127,7 @@ cdc2ff18731b        docker_jenkins     "/bin/tini -- /usr..."   About a minute a
 ```
 
 
-###### Configuração dos GitHub
+## Configuração dos GitHub (Opcional)
 
 Para este exercício não vamos configurar webhooks uma vez que o Jenkins esta rodando local e isso criaria uma dependências com a suas configurações de rede/internet, no entanto vale ressaltar que em um contexto de produção isso seria bastante indicado e coloca ainda mais automação no contexto - a partir de um push no repositório ele já executa a pipeline, top hein ? :)
 
@@ -140,7 +139,8 @@ Talvez seja necessário também criar uma chave SSH e adicionar no ``Deploy keys
 
 
 
-###### 4) Configuração do Jenkins
+
+## Inicialização do Jenkins
 
 Esta sim é uma parte fundamental do exercício, uma vez que temos o container Jenkins rodando, ele pode ser acessado pelo endereço http://localhost:8080 de acordo com as configurações descritas no docker compose. 
 
@@ -178,8 +178,7 @@ Depois de fornecer o password será necessário instalar os plugins recomendados
 Depois de clicar nos botões **Save and Finish** e **Start using Jenkins**, você estará acessando o painel principal do Jenkins. Agora vamos começar o trabalho de configuração dos plugins e testes de integração.
 
 
-
-
+## Configuração do Jenkins
 
 
 The purpose is to communicate between the ``Docker Daemon`` and the ``Docker Client``(_we will install it on Jenkins_) over the socket. Like the docker client, we also need ``Maven`` to compile the application. For the installation of these tools, we need to perform the ``Maven`` and ``Docker Client`` configurations under _Manage Jenkins -> Global Tool Configuration_ menu.
