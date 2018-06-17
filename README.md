@@ -19,7 +19,7 @@ O processo se resume nos seguintes estágios:
 
 --------------------------- 
 
-## Primeiros passo, estabelecendo os serviços
+## Primeiros passs - Estabelecendo os serviços
 
 Agora que já estamos alinhados quanto ao projeto e os estágios da pipeline, vamos as configurações!
 
@@ -30,18 +30,15 @@ Seguem abaixo os links para download e passo-a-passo sobre como instala-lo consi
 
 
 **MacOS**
-
 Instalação: https://docs.docker.com/docker-for-mac/install/#install-and-run-docker-for-mac
 Download: https://store.docker.com/editions/community/docker-ce-desktop-mac
 
 
 **Linux**
-
 Instalação: https://docs.docker.com/install/linux/docker-ce/ubuntu/ (veja outras opções de OS no menu lateral)
 
 
 **Windows**
-
 Instalação: https://docs.docker.com/docker-for-windows/install/
 Download: https://store.docker.com/editions/community/docker-ce-desktop-mac
 
@@ -117,7 +114,7 @@ cdc2ff18731b        docker_jenkins     "/bin/tini -- /usr..."   About a minute a
 ```
 
 
-## Configuração dos GitHub (Opcional)
+## Configuração do GitHub (Opcional)
 
 Para este exercício não vamos configurar webhooks uma vez que o Jenkins esta rodando local e isso criaria uma dependências com a suas configurações de rede/internet, no entanto vale ressaltar que em um contexto de produção isso seria bastante indicado e coloca ainda mais automação no contexto - a partir de um push no repositório ele já executa a pipeline, top hein ? :)
 
@@ -166,6 +163,7 @@ Depois de fornecer o password será necessário instalar os plugins recomendados
 ![](images/007.png)
 
 Depois de clicar nos botões **Save and Finish** e **Start using Jenkins**, você estará acessando o painel principal do Jenkins. Agora vamos começar o trabalho de configuração dos plugins e testes de integração.
+
 
 
 ## Configuração do Jenkins
