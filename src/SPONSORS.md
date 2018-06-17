@@ -1,0 +1,64 @@
+# Leaders
+
+- Alexander Alimovs
+- Alvin Lumowa
+- Andres Garcia / Florence Healthcare
+- Auth0
+- Benjamin Flesch / StriveWire
+- Biao Xie
+- Bryan Sapot
+- Christian Giacomi
+- CNN Digital
+- CodePilot.ai
+- Condé Nast Technology
+- Contentful
+- Dave Hyndman
+- David Roncancio
+- Dmitry Savinkov
+- Elba Sánchez Márquez
+- Eric Lanehart
+- [gitconnected](https://gitconnected.com)
+- Greg Allen
+- Healthline Media
+- Jeremy Whitbred
+- John Brett
+- Julian Lannigan
+- Lob
+- Louis Beltramo
+- Mahesh Babu R
+- Manny Pamintuan
+- NZZ Storytelling
+- Paulo Vieira
+- Peter Ka
+- Raffi Minassian
+- Raquel Hernandez
+- Saul Maddox
+- Shane Warren
+- Srikanth Minnam
+- Sven Lito
+- Tim Boudreau
+- Umut Şirin
+- Yehor Sergeenko
+
+# Supporters
+
+- Adilson Schmitt Junior
+- Andreas Zeuch
+- Chris St
+- Dave Stevens
+- Essau Ramirez
+- Finnegan
+- Geraint Corneu
+- Luke Bond
+- Marcos Bérgamo
+- Max Fierro
+- Nathan Buchar
+- Nicklas Laine Overgaard
+- Oakley Hall
+- PIer Bover
+- Robin van der Vleuten
+- Sheridan Tighe
+- Troy Whiteley
+- Viswanadha Pratap Kondoju
+- [quickytools](https://www.quickytools.com)
+
