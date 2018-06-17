@@ -1,4 +1,4 @@
-# Thoughtworks Test (twt) - Um exercício do processo seletivo sobre Pipeline as Code
+# ThoughtWorks Test (twt) - Um exercício do processo seletivo sobre Pipeline as Code
 
 Este repositório é sobre a implementação de uma pipeline simples para ci/cd que realize build, testes unitários, verificação de qualidade de código e deploy preferencialmente em containers.
 
@@ -25,7 +25,7 @@ O processo se resume nos seguintes estágios:
 Agora que já estamos alinhados quanto ao projeto e os estágios da pipeline, vamos as configurações!
 
 
-1) Ambiente Docker
+###### Ambiente Docker
 
 Para este exerícicio assim como na vida, podemos escolher escolher entre configurar todo ambiente e suas penedências ou utilizar containers docker já totalmente configurados e disponíveis no docker hub. Por razões obvias vamos seguir utilizando containers e para isso você precisa apenas ter o servico do Docker instalado na sua máquina ou servidor. S
 
@@ -59,7 +59,7 @@ https://store.docker.com/editions/community/docker-ce-desktop-mac
 
 
 
-2) Construção dos Servidores - Jenkins e SonarQube
+###### Construção dos Servidores - Jenkins e SonarQube
 
 Pronto, agora que você já tem o serviço do Docker instalado, partiremos para a consrução dos servidores principais do nosso exercício a partir de containers. Utilizaremos o Jenkins como orquestrador, logo será também nele aonde vamos configurar nossas pipelines e integrar com outros serviços. Outro componente importante da nossa estrutura é o SonarQube, ferramenta que realize o code analysis e verifica a qualidade do código que está sendo entregue para os ambientes.
 
@@ -128,15 +128,11 @@ cdc2ff18731b        docker_jenkins     "/bin/tini -- /usr..."   About a minute a
 ```
 
 
-3) Configuração dos GitHub
+###### Configuração dos GitHub
+
 Para este exercício não vamos configurar webhooks uma vez que o Jenkins esta rodando local e isso criaria uma dependências com a suas configurações de rede/internet, no entanto vale ressaltar que em um contexto de produção isso seria bastante indicado e coloca ainda mais automação no contexto - a partir de um push no repositório ele já executa a pipeline, top hein ? :)
 
 Para configurar os hooks basta abrir o repositório no Github e ir em Settings -> Integrations & Services > Add Service > Jenkins (Github plugin) e configurar, passando o endereço no formato http://seu-servidor-jenkins/github-webhook/ .
-
-![](images/001.png)
-
-
-![](images/002.png)
 
 Talvez seja necessário também criar uma chave SSH e adicionar no ``Deploy keys`` no seu repositório GitHub como indicado abaixo.
 
@@ -144,7 +140,7 @@ Talvez seja necessário também criar uma chave SSH e adicionar no ``Deploy keys
 
 
 
-4) Configuração do Jenkins
+###### 4) Configuração do Jenkins
 
 Esta sim é uma parte fundamental do exercício, uma vez que temos o container Jenkins rodando, ele pode ser acessado pelo endereço http://localhost:8080 de acordo com as configurações descritas no docker compose. 
 
@@ -152,6 +148,11 @@ Esta sim é uma parte fundamental do exercício, uma vez que temos o container J
 
 Será necessário a senha de administrador para seguir na instalação. Ela fica armazenada no arquivo ``/var/jenkins_home/secrets/initialAdminPassword``, mas também é exibida como output do processo de inicialização do Jenkins.
 
+Para acessar a chave basta executar o comando abaixo:
+
+```
+docker logs jekins
+```
 
 ```
 jenkins      | *************************************************************
@@ -164,12 +165,6 @@ jenkins      |
 jenkins      | This may also be found at: /var/jenkins_home/secrets/initialAdminPassword
 jenkins      |
 jenkins      | *************************************************************
-```
-
-Para acessar a chave basta executar o comando abaixo:
-
-```
-docker logs jekins
 ```
 
 Depois de fornecer o password será necessário instalar os plugins recomendados e definir um ``admin user``.
@@ -214,44 +209,3 @@ After that, when a push is done to the remote repository or when you manually tr
 ![](images/013.png)
 
 ## Review important points of the Jenkins file
-
-```
-stage('Initialize'){
-    def dockerHome = tool 'myDocker'
-    def mavenHome  = tool 'myMaven'
-    env.PATH = "${dockerHome}/bin:${mavenHome}/bin:${env.PATH}"
-}
-```
-
-The ``Maven`` and ``Docker client`` tools we have defined in Jenkins under _Global Tool Configuration_ menu are added to the ``PATH environment variable`` for using these tools with ``sh command``.
-
-```
-stage('Push to Docker Registry'){
-    withCredentials([usernamePassword(credentialsId: 'dockerHubAccount', usernameVariable: 'USERNAME', passwordVariable: 'PASSWORD')]) {
-        pushToImage(CONTAINER_NAME, CONTAINER_TAG, USERNAME, PASSWORD)
-    }
-}
-```
-
-``withCredentials`` provided by ``Jenkins Credentials Binding Plugin`` and bind credentials to variables. We passed **dockerHubAccount** value with ``credentialsId`` parameter. Remember that, dockerHubAccount value is Docker Hub credentials ID we have defined it under _Jenkins Home Page -> Credentials -> Global credentials (unrestricted) -> Add Credentials_ menu. In this way, we access to the username and password information of the account for login.
-
-## Sonarqube configuration
-
-For ``Sonarqube`` we have made the following definitions in the ``pom.xml`` file of the project.
-
-```xml
-<sonar.host.url>http://sonarqube:9000</sonar.host.url>
-...
-<dependencies>
-...
-    <dependency>
-        <groupId>org.codehaus.mojo</groupId>
-        <artifactId>sonar-maven-plugin</artifactId>
-        <version>2.7.1</version>
-        <type>maven-plugin</type>
-    </dependency>
-...
-</dependencies>
-```
-
-In the docker compose file, we gave the name of the Sonarqube service which is ``sonarqube``, this is why in the ``pom.xml`` file, the sonar URL was defined as http://sonarqube:9000.
