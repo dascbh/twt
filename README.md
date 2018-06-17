@@ -247,7 +247,7 @@ Assim que todos os estágios forem conclúidos com sucesso você poderá validar
 http://localhost:3000/
 ```
 
-![](images/023.png)
+![](images/032.png)
 
 
 
